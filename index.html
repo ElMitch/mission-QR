@@ -13,6 +13,7 @@
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
     }
     html,body{height:100%; margin:0; background:var(--bg); color:var(--green); font-family:var(--mono);}
+
     /* Fondo tipo “scanlines” */
     body::before{
       content:"";
@@ -29,6 +30,7 @@
       mix-blend-mode:screen;
       opacity:.35;
     }
+
     /* Sutil “viñeta” */
     body::after{
       content:"";
@@ -64,6 +66,7 @@
     }
     .dot{width:10px;height:10px;border-radius:99px; background:rgba(0,255,102,.35);}
     .title{margin-left:auto; font-size:12px; color:rgba(0,255,102,.7)}
+
     .screen{
       padding:16px 16px 18px;
       font-size:16px;
@@ -71,7 +74,15 @@
       white-space:pre-wrap;
       word-break:break-word;
       text-shadow: var(--glow);
+
+      /* ✅ Scroll automático posible */
+      max-height: 75vh;
+      overflow-y: auto;
+
+      /* scroll suave */
+      scroll-behavior: smooth;
     }
+
     .cursor{
       display:inline-block;
       width:10px;
@@ -93,7 +104,6 @@
       width:100%;
     }
 
-    /* Botón escondido para “replay” (por si lo quieres) */
     .replay{
       margin-top:10px;
       display:inline-block;
@@ -176,6 +186,11 @@
 
     function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
+    // ✅ Auto-scroll: siempre baja al final
+    function scrollToBottom() {
+      screen.scrollTop = screen.scrollHeight;
+    }
+
     async function typeAll(){
       replayBtn.style.display = "none";
       screen.textContent = "";
@@ -186,16 +201,18 @@
       await sleep(BOOT_DELAY);
 
       for (const line of LINES){
-        // Inserta la línea carácter por carácter antes del cursor
         for (let i = 0; i < line.length; i++){
           cursor.insertAdjacentText("beforebegin", line[i]);
+          scrollToBottom(); // ✅ baja conforme escribe
           await sleep(TYPE_SPEED + Math.random()*12);
         }
         cursor.insertAdjacentText("beforebegin", "\n");
+        scrollToBottom(); // ✅ baja al cambiar de línea
         await sleep(LINE_DELAY);
       }
 
       replayBtn.style.display = "inline-block";
+      scrollToBottom();
     }
 
     replayBtn.addEventListener("click", (e) => {
